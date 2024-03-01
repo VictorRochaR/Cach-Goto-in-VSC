@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import * as path from 'path';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -12,9 +13,14 @@ export function activate(context: vscode.ExtensionContext) {
 		});
 
 		if (input) {
-			const [metodo, arquivo] = input.split('+');
-			const [linhasPularValue, arquivoValue] = arquivo.split('^');
-
+			const fullPath = vscode.window.activeTextEditor?.document.fileName;
+			const arquivoAtualExtensao = path.basename(fullPath || '');
+			const arquivoAtual = path.parse(arquivoAtualExtensao).name;
+			
+			const [metodo, arquivoValue] = input.includes('^') ? input.split('^') : [input, arquivoAtual];
+			//const [metodo, arquivoValue] = input.split('^');
+			const [metodoValue, linhasPularValue] = metodo.includes('+') ? metodo.split('+') : [metodo, '0'];
+			//const [linhasPularValue, arquivoValue] = arquivo.split('^');
 			const files = await vscode.workspace.findFiles(`**/${arquivoValue}.mac`); // Append '.mac' at the end of the arquivoValue
 			if (files.length > 0) {
 				const fileUri = files[0];
@@ -23,7 +29,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 				const symbol = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>('vscode.executeDocumentSymbolProvider', document.uri);
 				if (symbol) {
-					const methodSymbol = symbol.find(s => s.name === metodo);
+					const methodSymbol = symbol.find(s => s.name === metodoValue);
 					if (methodSymbol) {
 						const position = methodSymbol.range.start;
 						const editor = vscode.window.activeTextEditor;
@@ -37,7 +43,7 @@ export function activate(context: vscode.ExtensionContext) {
 							editor.revealRange(new vscode.Range(newPosition, newPosition));
 						}
 					} else {
-						vscode.window.showInformationMessage(`Não achamos o símbolo '${metodo}'.`);
+						vscode.window.showInformationMessage(`Não achamos o símbolo '${metodoValue}'.`);
 					}
 				}
 			} else {

@@ -1,9 +1,10 @@
 {
   "name": "test",
   "displayName": "VRSC",
-  "description": "Short Cuts do Studio no VSC",
+  "description": "Funções do Studio no VSC",
   "version": "0.0.1",
   "publisher": "Victor Rocha",
+  "repository": "https://github.com/VictorRochaR/Cach-Goto-in-VSC",
   "engines": {
     "vscode": "^1.87.0"
   },
